@@ -1,0 +1,72 @@
+from sklearn.linear_model import LinearRegression
+import numpy as np
+from matplotlib import pyplot as plt
+import streamlit as st
+import os
+from PIL import Image
+
+def executeThisFunction():
+    currentDir = os.path.abspath(os.path.dirname(__file__))
+    st.subheader("Giới thiệu")
+    st.write("Support vector machine (SVM) là một trong những thuật toán phân lớp phổ biến và hiệu quả. Ý tưởng đứng sau SVM khá đơn giản, nhưng để hiểu được cách tìm nghiệm của nó, chúng ta cần một chút kiến thức về tối ưu và duality.")
+    st.write("Trước khi đi vào phần ý tưởng chính của SVM, chúng ta cùng ôn lại kiến thức về hình học giải tích trong chương trình phổ thông.")
+    st.subheader("Khoảng cách từ một điểm tới một siêu mặt phẳng")
+    st.write("Trong không gian hai chiều, khoảng cách từ một điểm có toạ độ (x0, y0) tới đường thẳng có phương trình w1x + w2y + b = 0 được xác định bởi")
+    filepath = os.path.join(currentDir, "congThuc1SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.write("Trong không gian ba chiều, khoảng cách từ một điểm có toạ độ (x0, y0, z0) tới một mặt phẳng có phương trình w1x + w2y + w3z + b = 0 được xác định bởi ")
+    filepath = os.path.join(currentDir, "congThuc2SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.write("Hơn nữa, nếu bỏ dấu trị tuyệt đối ở tử số, ta có thể xác định được điểm đó nằm về phía nào của đường thẳng hay mặt phẳng đang xét. Những điểm làm cho biểu thức trong dấu giá trị tuyệt đối mang dấu dương nằm về cùng một phía (tạm gọi là phía dương), những điểm làm cho giá trị này mang dấu âm nằm về phía còn lại (gọi là phía âm). Những điểm nằm trên đường thẳng/mặt phẳng sẽ làm cho tử số có giá trị bằng 0, tức khoảng cách bằng 0.")
+    st.write("Các công thức này có thể được tổng quát lên cho trường hợp không gian d chiều. Khoảng cách từ một điểm (vector) có toạ độ (x10, x20, . . . , xd0) tới siêu mặt phẳng (hyperplane) có phương trình w1x1 + w2x2 + · · · + wdxd + b = 0 được xác định bởi")
+    filepath = os.path.join(currentDir, "congThuc3SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.write("")
+    st.write("")
+    st.subheader("Nhắc lại bài toán phân chia hai lớp dữ liệu")
+    st.write("Chúng ta cùng quay lại với bài toán phân lớp như đã đề cập trong Chương 13 – Perceptron Learning Algorithm (PLA). Giả sử rằng có hai lớp dữ liệu được mô tả bởi các điểm (feature vector) trong không gian nhiều chiều, hơn nữa, hai lớp dữ liệu này là linearly separable, tức tồn tại một siêu phẳng phân chia chính xác hai lớp đó. Hãy tìm một siêu phẳng phân chia hai lớp đó đó, tức tất cả các điểm thuộc một lớp nằm về cùng một phía của siêu phẳng đó và ngược phía với toàn bộ các điểm thuộc lớp còn lại. Chúng ta đã biết rằng, thuật toán PLA có thể làm được việc này nhưng nó có thể cho chúng ta vô số nghiệm")
+    st.write("Để trả lời câu hỏi này, chúng ta cần tìm một tiêu chuẩn để đo sự hạnh phúc của mỗi lớp. Nếu ta định nghĩa mức độ hạnh phúc của một lớp tỉ lệ thuận với khoảng cách gần nhất từ một điểm của lớp đó tới đường/mặt phân chia, ở Hình 26.2a, lớp màu đỏ sẽ không được hạnh phúc cho lắm vì đường phân chia gần nó hơn lớp màu xanh rất nhiều. Chúng ta cần một đường phân chia sao cho khoảng cách từ điểm gần nhất của mỗi lớp (các điểm được khoanh tròn) tới đường phân chia là như nhau, như thế thì mới công bằng. Khoảng cách như nhau này được gọi là biên hoặc lề (margin). ")
+    st.write("Xét tiếp Hình 26.2b khi khoảng cách từ đường phân chia tới các điểm gần nhất của mỗi lớp là như nhau. Xét hai cách phân chia bởi đường nét liền màu đen và đường nét đứt màu lục, đường nào sẽ làm cho cả hai lớp hạnh phúc hơn? Rõ ràng đó phải là đường nét liền màu đen vì nó tạo ra một margin rộng hơn.")
+    st.write("Việc margin rộng hơn sẽ mang lại hiệu ứng phân lớp tốt hơn vì sự phân chia giữa hai lớp là rạch ròi hơn. Bài toán tối ưu trong SVM chính là bài toán đi tìm đường phân chia sao cho margin giữa hai lớp là lớn nhất. Đây cũng là lý do vì sao SVM còn được gọi là maximum margin classifier. Nguồn gốc của tên gọi support vector machine sẽ sớm được làm sáng tỏ.")
+
+    st.subheader("Xây dựng bài toán tối ưu cho SVM")
+    st.write("Giả sử rằng các cặp dữ liệu trong tập huấn luyện là (x1, y1),(x2, y2), . . . ,(xN , yN ) với vector xi ∈ R d thể hiện đầu vào của một điểm dữ liệu và yi là nhãn của điểm dữ liệu đó, d là số chiều của dữ liệu và N là số điểm dữ liệu. Giả sử rằng nhãn của mỗi điểm dữ liệu được xác định bởi yi = 1 hoặc yi = −1 giống như trong PLA. ")
+    st.write("Để dễ hình dung, chúng ta cùng làm với các ví dụ trong không gian hai chiều. Giả sửrằng các điểm màu xanh có nhãn là 1, các điểm tròn đỏ có nhãn là -1 và mặt wT x + b =w1x1 + w2x2 + b = 0 là mặt phân chia giữa hai lớp (Hình 26.3). Hơn nữa, lớp màu xanh nằmvề phía dương, lớp màu đỏ nằm về phía âm của mặt phân chia. Nếu ngược lại, ta chỉ cầnđổi dấu của w và b. Ta cần đi tìm siêu phẳng được mô tả bởi các hệ số w và b.")
+    st.write("Điều này có thể được nhận thấy vì theo giả sử ở trên, yn luôn cùng dấu với phía của xn. Từ đó suy ra yn cùng dấu với (wT xn +b), vì vậy tử số luôn là một đại lượng không âm. Với mặt")
+    st.write("phân chia này, margin được tính là khoảng cách gần nhất từ một điểm (trong cả hai lớp, vì cuối cùng margin của cả hai lớp sẽ như nhau) tới mặt đó, tức là")
+
+    filepath = os.path.join(currentDir, "congThuc4SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.write("Bài toán tối ưu của SVM chính là việc tìm w và b sao cho margin này đạt giá trị lớn nhất:")
+    currentDir = os.path.abspath(os.path.dirname(__file__))
+    filepath = os.path.join(currentDir, "congThuc5SVM_LT.png")
+    image = Image.open(filepath)
+    st.write("Có một nhận xét quan trọng là nếu ta thay vector hệ số w bởi kw và b bởi kb trong đó k là một hằng số dương bất kỳ thì mặt phân chia không thay đổi, tức khoảng cách từ từng điểm đến mặt phân chia không đổi, tức margin không đổi. Vì vậy, ta có thể giả sử ")
+
+    filepath = os.path.join(currentDir, "congThuc6SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.subheader("Bài toán đối ngẫu của SVM")
+    st.write("Kiểm tra tiêu chuẩn Slater")
+
+    filepath = os.path.join(currentDir, "congThuc7SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.write("Hàm đối ngẫu Lagrange")
+    filepath = os.path.join(currentDir, "congThuc8SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+    st.subheader("Bài toán đối ngẫu Lagrange")
+    filepath = os.path.join(currentDir, "congThuc9SVM_LT.png")
+    image = Image.open(filepath)
+    st.image(image, caption='', use_column_width=True)
+
+    # st.write("Sự khác nhau giữa GD thông thường và GD với momentem chỉ nằm ở thành phần cuối cùng của (12.8). Thuật toán đơn giản này tỏ ra rất hiệu quả trong các bài toán thực tế. Dưới đây là một ví dụ trong không gian một chiều. Xét một hàm đơn giản có hai điểm local minimum, trong đó một điểm là global minimum")
+    # currentDir = os.path.abspath(os.path.dirname(__file__))
+    # filepath = os.path.join(currentDir, "congThucMomentum4.png")
+    # image = Image.open(filepath)
+    # st.image(image, caption='', use_column_width=True)
