@@ -1,0 +1,14 @@
+.write
+.title
+.header
+.subheader
+.caption
+.markdown
+.code
+.text
+=>font, size chu
+
+.button
+.text_input
+.file_uploader
+.download_button
